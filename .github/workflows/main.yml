@@ -1,0 +1,39 @@
+name: Build VoiceShift APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle 8.7
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.7'
+
+      - name: Extract project
+        run: |
+          mkdir build-src
+          unzip -o VoiceShift.zip -d build-src
+
+      - name: Build APK
+        working-directory: build-src/VoiceShift-Android
+        run: |
+          gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoiceShift-APK
+          path: build-src/VoiceShift-Android/app/build/outputs/apk/debug/app-debug.apk
